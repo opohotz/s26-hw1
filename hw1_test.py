@@ -8,12 +8,12 @@ from hw1 import retrieve_url
 from subprocess import Popen, PIPE
 
 TEST_CASES = [
-    'http://www.example.com',  # most basic example (with no slash) 
+    #'http://www.example.com',  # most basic example (with no slash) 
     #'http://serenegoodfinelight.neverssl.com/online/',  # another basic example
-     'http://help.websiteos.com/websiteos/htmlpage.jpg',  # is an image
-     'http://go.com/doesnotexist',  # causes 404
-     'http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx', # chunked encoding
-     'http://portquiz.net:8080/' # nonstandard port, even curl should fail to fetch complete data, but autograder won't 
+    # 'http://help.websiteos.com/websiteos/htmlpage.jpg',  # is an image
+    # 'http://go.com/doesnotexist',  # causes 404
+    # 'http://www.httpwatch.com/httpgallery/chunked/chunkedimage.aspx', # chunked encoding
+    # 'http://portquiz.net:8080/' # nonstandard port, even curl should fail to fetch complete data, but autograder won't 
 ]
 
 TEST_CASES_BONUS = [

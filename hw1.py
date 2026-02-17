@@ -90,6 +90,12 @@ def retrieve_url(url):
                 port = int(port_str)
                 host_value = host_only + ":" + port_str
 
+        host_ascii = host_only.encode("idna").decode("ascii")
+        if host_value == host_only:
+            host_value = host_ascii
+        else:
+            host_value = host_ascii + ":" + str(port)
+
         message = ( 
             method + sp + path + sp + version + cr + lf + 
             host_hdr + host_value + cr + lf + 
@@ -98,26 +104,32 @@ def retrieve_url(url):
             cr + lf
         ).encode()
         
-        # --- make connection ---
+                # --- make connection ---
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)  # avoid hanging forever on servers that don't close promptly
-        s.connect((host_only, port))
 
-        if https:
-            ctx = ssl.create_default_context() #creates SSL/TLS config HTTPS rules
-            s = ctx.wrap_socket(s, server_hostname=host_only) #TLS handshake on socket
+        try:
+            s.connect((host_ascii, port))
 
-        s.sendall(message)
+            if https:
+                ctx = ssl.create_default_context() #creates SSL/TLS config HTTPS rules
+                s = ctx.wrap_socket(s, server_hostname=host_ascii) #TLS handshake on socket
 
-        response = b"" #read server response
-        while True:
+            s.sendall(message)
+
+            response = b"" #read server response
+            while True:
+                chunk = s.recv(4096)   # will raise socket.timeout if it stalls
+                if not chunk:
+                    break
+                response += chunk
+
+        except (socket.timeout, TimeoutError):
             try:
-                chunk = s.recv(4096)
-            except socket.timeout:
-                break
-            if not chunk:
-                break
-            response += chunk
+                s.close()
+            except Exception:
+                pass
+            return None
 
         s.close()
         # --- end connection code ---
@@ -149,7 +161,7 @@ def retrieve_url(url):
 
             loc_str = loc.decode("iso-8859-1", "replace")
 
-            # absolute redirect
+            #absolute redirect
             if loc_str.startswith("http://") or loc_str.startswith("https://"):
                 current = loc_str
             else:
@@ -159,7 +171,7 @@ def retrieve_url(url):
                 current = scheme + host_value + loc_str
 
             redirects += 1
-            continue  # go fetch redirected URL
+            continue  #fetch redirected URL
 
         #return NONE for non-200
         if status_code != 200:
