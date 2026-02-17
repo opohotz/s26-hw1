@@ -118,10 +118,18 @@ def retrieve_url(url):
             s.sendall(message)
 
             response = b"" #read server response
+            idle_timeouts = 0
             while True:
-                chunk = s.recv(4096)   # will raise socket.timeout if it stalls
+                try:
+                    chunk = s.recv(4096)   # will raise socket.timeout if it stalls
+                except socket.timeout:
+                    idle_timeouts += 1
+                    if idle_timeouts >= 10:
+                        break
+                    continue
                 if not chunk:
                     break
+                idle_timeouts = 0
                 response += chunk
 
         except (socket.timeout, TimeoutError):
