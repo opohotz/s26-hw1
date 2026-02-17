@@ -1,8 +1,8 @@
 # Allowed Modules
 import logging
-import socket #Opening or closing TCP connection
+import socket
 import sys
-import gzip #for encryptyion
+import gzip
 import ssl
 # End of Allowed Modules
 # Adding any extra module will result into score of 0
